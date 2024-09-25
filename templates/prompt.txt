@@ -1,0 +1,10 @@
+Evaluate the following commit message and determine how well it explains the change-set. In particular, rate the commit message as either "Complete", "Adequate", or "Incomplete". Provide a reason for the analysis and suggest a better message. Return the result as JSON.
+
+The commit message is:
+
+{{commit_message}}
+
+and the code diff is:
+
+{{code_diff}}
+
