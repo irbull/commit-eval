@@ -1,8 +1,8 @@
 use askama::Template;
 use async_openai::{
     types::{
-        ChatCompletionRequestSystemMessageArgs,
-        CreateChatCompletionRequestArgs, ResponseFormat, ResponseFormatJsonSchema,
+        ChatCompletionRequestSystemMessageArgs, CreateChatCompletionRequestArgs, ResponseFormat,
+        ResponseFormatJsonSchema,
     },
     Client,
 };
@@ -10,27 +10,14 @@ use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
-#[derive(JsonSchema, Serialize, Deserialize, Debug, Clone, Copy)]
-pub enum MessageScore {
-    Complete,
-    Adequate,
-    Incomplete,
-}
-
-#[derive(JsonSchema, Serialize, Deserialize, Debug, Clone)]
-pub struct Evaluation {
-    pub message: MessageScore,
-    pub reason: String,
-    pub suggestion: String,
-}
+use crate::evaluation::Evaluation;
 
 #[derive(Template)]
 #[template(path = "prompt.txt")]
 struct PromptTemplate {
     commit_message: String,
-    code_diff: String
+    code_diff: String,
 }
-
 
 /// Evaluate a commit message and diff to determine if it is complete, adequate, or incomplete.
 /// # Errors
@@ -52,12 +39,10 @@ pub async fn evaluate_commit(message: &str, diff: &str) -> Result<Evaluation, Bo
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u32)
         .model("gpt-4o-2024-08-06")
-        .messages([
-            ChatCompletionRequestSystemMessageArgs::default()
-                .content(construct_system_message(message, diff))
-                .build()?
-                .into(),
-        ])
+        .messages([ChatCompletionRequestSystemMessageArgs::default()
+            .content(construct_system_message(message, diff))
+            .build()?
+            .into()])
         .response_format(response_format)
         .build()?;
 

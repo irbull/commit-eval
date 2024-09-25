@@ -1,4 +1,4 @@
-use commit_eval::evaluator::evaluate_commit;
+use commit_eval::{evaluation::MessageScore, evaluator::evaluate_commit};
 
 #[tokio::main]
 async fn main() {
@@ -6,8 +6,10 @@ async fn main() {
     let commit_message = get_commit_message();
     let diff = get_diff();
     let result = evaluate_commit(&commit_message, &diff).await.unwrap();
-    println!("{result:?}");
+    println!("{result}");
 }
+
+
 
 fn get_diff() -> String {
     let output = std::process::Command::new("git")

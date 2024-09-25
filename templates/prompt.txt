@@ -1,4 +1,10 @@
-Evaluate the following commit message and determine how well it explains the change-set. In particular, rate the commit message as either "Complete", "Adequate", or "Incomplete". Provide a reason for the analysis and suggest a better message. Return the result as JSON.
+Evaluate the following commit message and determine how well it explains the change-set. In particular, rate the commit message as either "Complete", "Adequate", or "Incomplete". Provide a reason for the analysis.
+
+Suggest a better message:
+
+Split the suggested commit message into a "Title" that completes the sense "If applied, this commit will <title>" (maximum 52 characters long) and a "Body". Use proper sentences in the suggested body, not point form. Wrap at 72 characters, and use paragraph breaks where needed. Return the result as JSON.
+
+If the commit message is rated as "Complete", just return the existing Title and Body.
 
 The commit message is:
 
