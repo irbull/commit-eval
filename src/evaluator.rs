@@ -1,7 +1,7 @@
 use askama::Template;
 use async_openai::{
     types::{
-        ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
+        ChatCompletionRequestSystemMessageArgs,
         CreateChatCompletionRequestArgs, ResponseFormat, ResponseFormatJsonSchema,
     },
     Client,
@@ -31,8 +31,12 @@ struct PromptTemplate {
     code_diff: String
 }
 
+
+/// Evaluate a commit message and diff to determine if it is complete, adequate, or incomplete.
+/// # Errors
+/// # Panics
 pub async fn evaluate_commit(message: &str, diff: &str) -> Result<Evaluation, Box<dyn Error>> {
-    let mut json_schema = serde_json::to_value(&schema_for!(Evaluation))?;
+    let mut json_schema = serde_json::to_value(schema_for!(Evaluation))?;
     json_schema["additionalProperties"] = serde_json::Value::Bool(false);
 
     let response_format = ResponseFormat::JsonSchema {
