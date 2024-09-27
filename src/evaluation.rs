@@ -6,9 +6,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(JsonSchema, Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum MessageScore {
-    Complete,
-    Adequate,
-    Incomplete,
+    Excellent,
+    Revisable,
 }
 
 #[derive(JsonSchema, Serialize, Deserialize, Debug, Clone)]
@@ -22,19 +21,18 @@ pub struct Evaluation {
 impl Display for MessageScore {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            MessageScore::Complete => write!(f, "✅ Complete"),
-            MessageScore::Adequate => write!(f, "🟨 Adequate"),
-            MessageScore::Incomplete => write!(f, "❌ Incomplete"),
+            MessageScore::Excellent => write!(f, "✅ Excellent"),
+            MessageScore::Revisable => write!(f, "🟨 Revisable"),
         }
     }
 }
 
 impl Display for Evaluation {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}\n", self.score)?;
+        writeln!(f, "{}", self.score)?;
         match self.score {
-            MessageScore::Complete => write!(f, "\nReason: {}", self.reason),
-            _ => write!(
+            MessageScore::Excellent => write!(f, "\nReason: {}", self.reason),
+            MessageScore::Revisable => write!(
                 f,
                 "\nReason: {}\n---\n{}\n\n{}",
                 self.reason, self.suggested_title, &self.suggested_body
@@ -42,5 +40,3 @@ impl Display for Evaluation {
         }
     }
 }
-
-

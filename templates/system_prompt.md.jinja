@@ -1,0 +1,24 @@
+Evaluate the following commit message and determine how well it explains the change-set.
+In particular, rate the commit message as either "Excellent" or "Revisable".
+
+1. If the commit message is clear, concise, and explains the change-set well, rate it as "Excellent".
+2. If the commit message is unclear, incomplete, or does not explain the change-set well, rate it as "Revisable".
+
+If the commit message is "Revisable" suggest a better message using the following format:
+{% if let Some(conventional_commit) = conventional_commit %}
+1. Use the "conventional commit" style for the title that includes `<type>[optional scope]: <description>`
+2. Use proper sentences in the body and use paragraph breaks where needed.
+
+The existing message had the following conventional commit properties:
+- Commit Type: {{ conventional_commit.commit_type }}
+- Description: {{ conventional_commit.commit_type }}
+- Body: {{ conventional_commit.body|display_some }}
+{% else %}
+1. Split the suggested commit message into a `Title` that completes the sense `If applied, this commit will <title>` (maximum 52 characters long);
+2. and a "Body" that explains the change-set in detail using proper sentences and paragraph breaks.
+{% endif %}
+Return the result as JSON.
+
+If the commit message is rated as "Excellent", just return the existing Title and Body. 
+If the commit message is rated as "Revisable", return the suggested Title and Body.
+

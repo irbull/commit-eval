@@ -204,6 +204,7 @@ version = "0.1.0"
 dependencies = [
  "askama",
  "async-openai",
+ "conventional_commits",
  "dotenvy",
  "reqwest",
  "schemars",
@@ -212,6 +213,11 @@ dependencies = [
  "serde_json",
  "tokio",
 ]
+
+[[package]]
+name = "conventional_commits"
+version = "0.1.1"
+source = "git+https://github.com/shubhexists/conventional_commits/#22b94f952e123af1ef61f78b3bdc3aa12c8e09d3"
 
 [[package]]
 name = "core-foundation"
