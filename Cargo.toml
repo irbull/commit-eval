@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 askama = { git = "https://github.com/djc/askama" }
 async-openai = "0.24.0"
+clap = { version = "4.5.1", features = ["derive"] }
 dotenvy = "0.15.7"
 conventional_commits = { git = "https://github.com/shubhexists/conventional_commits/" }
 reqwest = {version = "0.12.7", features = ["json"] }
