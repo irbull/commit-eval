@@ -1,7 +1,6 @@
 use clap::Parser;
-use commit_eval::evaluator::evaluate_commit;
-use commit_eval::git::{get_commit_message, get_diff};
-use conventional_commits::{parse_commit, Lexer};
+use colored::*;
+use commit_eval::{evaluator::evaluate_file_change, git::{get_commit_message, get_diff, get_structured_diff}};
 use std::path::PathBuf;
 
 /// A tool to evaluate git commit messages
@@ -18,13 +17,19 @@ async fn main() {
     let _ = dotenvy::dotenv();
     let args = Args::parse();
     
+    println!("{}", "Changed files:".blue().bold());
     let commit_message = get_commit_message(&args.repo);
-    let diff = get_diff(&args.repo);
-    let mut lexer = Lexer::new(commit_message.clone());
-    let tokens = lexer.lex().ok();
-    let conventional_commit = parse_commit(tokens.unwrap_or_default()).ok();
-    let result = evaluate_commit(&commit_message, &diff, conventional_commit)
-        .await
-        .unwrap();
-    println!("{result}");
+    for file in get_structured_diff(&args.repo) {
+        println!("  {}", file.display().to_string().cyan());
+        let diff = get_diff(&args.repo);
+        let absolute_path = args.repo.join(&file);
+        let file_contents = std::fs::read_to_string(&absolute_path).unwrap();
+        let file_path = file.display().to_string();
+        let result = evaluate_file_change(&commit_message, &file_path, &file_contents, &diff).await.unwrap();
+        println!("    {}: {}", "Score".bright_blue(), format!("{}", result.score).yellow());
+        println!("    {}: {}", "Reason".bright_blue(), result.reason.as_str().yellow());
+    }
+    println!();
+
+
 }

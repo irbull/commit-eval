@@ -6,7 +6,6 @@ use async_openai::{
     },
     Client,
 };
-use conventional_commits::ConventionalCommit;
 use schemars::schema_for;
 use std::error::Error;
 
@@ -15,23 +14,24 @@ use crate::evaluation::Evaluation;
 #[derive(Template)]
 #[template(path = "system_prompt.md.jinja")]
 struct SystemPromptTemplate {
-    conventional_commit: Option<ConventionalCommit>,
+    commit_message: String
 }
 
 #[derive(Template)]
 #[template(path = "user_message.md.jinja")]
 struct UserMessageTemplate {
-    commit_message: String,
+    file_contents: String,
     code_diff: String,
+    file_path: String,
 }
 
-/// Evaluate a commit message and diff to determine if it is complete, adequate, or incomplete.
 /// # Errors
 /// # Panics
-pub async fn evaluate_commit(
-    message: &str,
+pub async fn evaluate_file_change(
+    commit_message: &str,
+    file_path: &str,
+    file_contents: &str,
     diff: &str,
-    conventional_commit: Option<ConventionalCommit>,
 ) -> Result<Evaluation, Box<dyn Error>> {
     let mut json_schema = serde_json::to_value(schema_for!(Evaluation))?;
     json_schema["additionalProperties"] = serde_json::Value::Bool(false);
@@ -49,11 +49,11 @@ pub async fn evaluate_commit(
         .max_tokens(512u32)
         .model("gpt-4o-2024-08-06")
         .messages([ChatCompletionRequestSystemMessageArgs::default()
-            .content(construct_system_prompt(conventional_commit))
+            .content(construct_system_prompt(commit_message))
             .build()?
             .into()])
         .messages([ChatCompletionRequestUserMessageArgs::default()
-            .content(construct_user_message(message, diff))
+            .content(construct_user_message(file_path, file_contents, diff))
             .build()?
             .into()])
         .response_format(response_format)
@@ -62,35 +62,25 @@ pub async fn evaluate_commit(
     let response = client.chat().create(request).await?;
     let choice = response.choices.first().unwrap();
 
+    
     Ok(serde_json::from_str(
         choice.message.content.as_ref().unwrap().as_str(),
     )?)
 }
 
-fn construct_system_prompt(conventional_commit: Option<ConventionalCommit>) -> String {
+fn construct_system_prompt(commit_message: &str) -> String {
     let system_message = SystemPromptTemplate {
-        conventional_commit,
+        commit_message: commit_message.into(),
     };
     system_message.render().unwrap()
 }
 
-fn construct_user_message(message: &str, diff: &str) -> String {
+fn construct_user_message(file_path: &str, file_contents: &str, diff: &str) -> String {
     let system_message = UserMessageTemplate {
-        commit_message: message.into(),
+        file_path: file_path.into(),
+        file_contents: file_contents.into(),
         code_diff: diff.into(),
     };
     system_message.render().unwrap()
 }
 
-#[allow(clippy::unnecessary_wraps)]
-mod filters {
-    pub fn display_some<T>(value: &Option<T>) -> askama::Result<String>
-    where
-        T: std::fmt::Display,
-    {
-        Ok(match value {
-            Some(value) => value.to_string(),
-            None => String::new(),
-        })
-    }
-}

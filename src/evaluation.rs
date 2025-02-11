@@ -5,38 +5,39 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(JsonSchema, Serialize, Deserialize, Debug, Clone, Copy)]
-pub enum MessageScore {
+pub enum CodeScore {
     Excellent,
-    Revisable,
+    Good,
+    Acceptable,
+    NeedsImprovement,
+    Poor,
 }
 
 #[derive(JsonSchema, Serialize, Deserialize, Debug, Clone)]
 pub struct Evaluation {
-    pub score: MessageScore,
+    pub score: CodeScore,
     pub reason: String,
-    pub suggested_title: String,
-    pub suggested_body: String,
+    //pub suggestions: String,
 }
 
-impl Display for MessageScore {
+impl Display for CodeScore {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            MessageScore::Excellent => write!(f, "✅ Excellent"),
-            MessageScore::Revisable => write!(f, "🟨 Revisable"),
+            Self::Excellent => write!(f, "Excellent"),
+            Self::Good => write!(f, "Good"),
+            Self::Acceptable => write!(f, "Acceptable"),
+            Self::NeedsImprovement => write!(f, "Needs Improvement"),
+            Self::Poor => write!(f, "Poor"),
         }
     }
 }
 
 impl Display for Evaluation {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        writeln!(f, "{}", self.score)?;
-        match self.score {
-            MessageScore::Excellent => write!(f, "\nReason: {}", self.reason),
-            MessageScore::Revisable => write!(
-                f,
-                "\nReason: {}\n---\n{}\n\n{}",
-                self.reason, self.suggested_title, &self.suggested_body
-            ),
-        }
+        write!(
+            f,
+            "Score: {}\nReason: {}\n",
+            self.score, self.reason
+        )
     }
 }
